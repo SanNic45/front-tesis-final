@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import LoginService from "./LoginService";
-import logo from '../../assets/logo.png';
 import "./Login.css";
 import Swal from 'sweetalert2';
 import { useLocation, useNavigate } from "react-router-dom";
@@ -15,7 +14,6 @@ const Login = () => {
     const isLoggedIn = localStorage.getItem('token');
     const isLoginPage = location.pathname === '/login';
     if (isLoggedIn && isLoginPage) {
-      // Si hay una sesión activa y estamos en la página de inicio de sesión, mostrar la alerta de sesión activa
       showSessionAlert();
     }
   }, [location]);
@@ -30,7 +28,7 @@ const Login = () => {
       confirmButtonText: 'Ir al dashboard'
     }).then((result) => {
       if (result.isConfirmed) {
-        navigate('/'); // Redirigir al dashboard si el usuario confirma
+        navigate('/');
       }
     });
   };
@@ -38,7 +36,6 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      // Validación básica del formato de correo electrónico
       if (!isValidEmail(email)) {
         Swal.fire({
           icon: 'error',
@@ -49,11 +46,8 @@ const Login = () => {
       }
 
       const token = await LoginService(email, password);
-      // Almacenar el token en localStorage o en un estado global
       localStorage.setItem('token', token);
-      // Indicar que se ha iniciado sesión
       localStorage.setItem('login-event', JSON.stringify({ loggedIn: true }));
-      // Mostrar alerta de inicio de sesión
       showLoginAlert();
     } catch (error) {
       Swal.fire({
@@ -70,50 +64,54 @@ const Login = () => {
       title: 'Inicio de sesión exitoso',
       text: '¡Bienvenido! Has iniciado sesión correctamente.',
       showConfirmButton: false,
-      timer: 1500 // Cerrar automáticamente después de 1.5 segundos
+      timer: 1500
     }).then(() => {
-      navigate('/'); // Redirigir al dashboard después de mostrar la alerta
+      navigate('/');
     });
   };
 
   const isValidEmail = (email) => {
-    // Expresión regular para validar el formato del correo electrónico
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
   return (
-    <div>
-      <div>
-        <h2>Login</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="app-logo" style={{ margin: "0 auto" }}>
-            <img
-              src={logo}
-              alt="Logo de la aplicación"
-              style={{ width: "150px", height: "auto" }}
-            />
-          </div>
-          <div>
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="password">Password:</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button type="submit">Login</button>
-        </form>
+    <div className="container-fluid d-flex justify-content-center align-items-center vh-100" style={{ 
+      backgroundImage: 'url("/images/logos/fondo.png")',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundAttachment: 'fixed', 
+    }}>     
+    <div className="card p-4 rounded-3 shadow bg-light" style={{ width: "400px" }}>
+        <div className="text-center mb-4">
+          <img
+            src="/images/logos/logo.png"
+            alt="Logo de la aplicación"
+            style={{ width: "150px", height: "auto" }}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email:</label>
+          <input
+            type="email"
+            id="email"
+            className="form-control"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Password:</label>
+          <input
+            type="password"
+            id="password"
+            className="form-control"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <button type="submit" onClick={handleSubmit} className="btn btn-primary btn-block">Login</button>
       </div>
     </div>
   );
