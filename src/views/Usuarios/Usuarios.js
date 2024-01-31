@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from "react";
-import axios from "axios"; // Importa Axios
+import axios from "axios";
 import $ from "jquery";
 import "datatables.net-bs5";
 import "datatables.net-responsive-bs5";
@@ -8,13 +8,13 @@ import Modal from "../../components/Modal/ModalUsuarios";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import Navbar from "../../components/Navbar/Navbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import "./Usuarios.css";
 
 const TablaUsuarios = () => {
   const tableRef = useRef(null);
   const [isModalOpen, setModalOpen] = useState(false);
-  const tableInstance = useRef(null); // Usamos useRef para almacenar el valor mutable
+  const tableInstance = useRef(null);
 
   const handleCrearUsuario = () => {
     setModalOpen(true);
@@ -27,22 +27,21 @@ const TablaUsuarios = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/users/all"); // Realiza la solicitud HTTP GET
-        const data = response.data; // Obtiene los datos de la respuesta
+        const response = await axios.get("http://localhost:3001/api/users/all"); 
+        const data = response.data; 
         tableInstance.current = $(tableRef.current).DataTable({
           responsive: true,
-          data: data, // Utiliza los datos de la respuesta
+          data: data, 
           columns: [
-            { title: "ID", data: "id" },
+            { title: "Rol", data: "rol" },
             { title: "Nombre", data: "name" },
             { title: "Apellido", data: "lastname" },
             { title: "Cédula", data: "cedula" },
-            { title: "Fecha", data: "date" },
             { title: "Email", data: "email" },
             { title: "Celular", data: "celular" },
-            { title: "Rol", data: "rol" },
+            
           ],
-          retrieve: true, // Recupera la instancia existente si ya se ha creado
+          retrieve: true, 
         });
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -51,7 +50,6 @@ const TablaUsuarios = () => {
 
     fetchData();
     
-    // Limpia la instancia de la DataTable al desmontar el componente
     return () => {
       if (tableInstance.current) {
         tableInstance.current.destroy();
@@ -74,14 +72,12 @@ const TablaUsuarios = () => {
                 <table className="table" ref={tableRef}>
                   <thead>
                     <tr>
-                      <th>ID</th>
+                    <th>Rol</th>
                       <th>Nombre</th>
                       <th>Apellido</th>
                       <th>Cédula</th>
-                      <th>Fecha</th>
                       <th>Email</th>
                       <th>Celular</th>
-                      <th>Rol</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
