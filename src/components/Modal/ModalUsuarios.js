@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import "./Modal.css";
-import { Typeahead } from "react-bootstrap-typeahead";
 import { createUser } from "./serviceModalUsuarios"; // Importa la función createUser
-
-const options = [
-  { value: "administrador", label: "Administrador" },
-  { value: "doctor", label: "Doctor" },
-];
+import Swal from 'sweetalert2'; // Importa SweetAlert
 
 const ModalUsuarios = ({ onClose, isOpen }) => {
   const [formData, setFormData] = useState({
@@ -16,30 +11,50 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
     correo: "",
     telefono: "",
     fechaNacimiento: "",
-    rol: "",
+    rol: "", // Agregando el campo "rol"
     password: "",
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleSelectChange = (selected) => {
-    if (selected[0]) {
-      setFormData((prevData) => ({ ...prevData, rol: selected[0].value }));
+    // Validación para permitir solo números y limitar a 10 dígitos para cédula y teléfono
+    if ((name === "cedula" || name === "telefono") && !/^\d{0,10}$/.test(value)) {
+      return;
     }
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Crea un objeto con los datos del formulario
+      const userData = {
+        name: formData.nombre,
+        lastname: formData.apellido,
+        cedula: formData.cedula,
+        date: formData.fechaNacimiento,
+        email: formData.correo,
+        celular: formData.telefono,
+        pass: formData.password,
+        rol: formData.rol // Incluyendo el campo "rol"
+      };
+
       // Envía los datos del formulario al backend para crear un nuevo usuario
-      await createUser(formData);
-      console.log("Usuario creado exitosamente");
-      onClose();
+      await createUser(userData);
+      Swal.fire({
+        title: 'Usuario creado!',
+        text: 'El usuario se creó exitosamente.',
+        icon: 'success',
+        confirmButtonText: 'Ok'
+      }).then(() => onClose());
     } catch (error) {
       console.error("Error al crear usuario:", error);
+      Swal.fire({
+        title: 'Error',
+        text: 'Hubo un error al crear el usuario.',
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      });
     }
   };
 
@@ -51,7 +66,7 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
       correo: "",
       telefono: "",
       fechaNacimiento: "",
-      rol: "",
+      rol: "", // Restableciendo el campo "rol" al estado inicial
       password: "",
     });
   
@@ -100,21 +115,6 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
               </div>
               <div className="col-md-6">
                 <div className="mb-3">
-                  <label htmlFor="rol" className="form-label">
-                    Rol:
-                  </label>
-                  <Typeahead
-                    id="rol"
-                    name="rol"
-                    options={options}
-                    onChange={handleSelectChange}
-                    allowNew={false}
-                    placeholder="Seleccione un rol..."
-                  />
-                </div>
-              </div>
-              <div className="col-md-6">
-                <div className="mb-3">
                   <label htmlFor="cedula" className="form-label">
                     Cédula:
                   </label>
@@ -149,7 +149,7 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
                     Teléfono:
                   </label>
                   <input
-                    type="tel"
+                    type="text"
                     id="telefono"
                     name="telefono"
                     className="form-control"
@@ -186,6 +186,24 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
                     value={formData.password}
                     onChange={handleInputChange}
                   />
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label htmlFor="rol" className="form-label">
+                    Rol:
+                  </label>
+                  <select
+                    id="rol"
+                    name="rol"
+                    className="form-control"
+                    value={formData.rol}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Selecciona un rol</option>
+                    <option value="administrativo">Administrativo</option>
+                    <option value="doctor">Doctor</option>
+                  </select>
                 </div>
               </div>
             </div>
