@@ -137,7 +137,9 @@ const ModalUsuarios = ({ onClose, isOpen }) => {
                   value={formData.rol}
                   onChange={handleInputChange}
                 >
-                  <option value="">Selecciona un rol</option>
+                  <option value="" disabled hidden>
+                       Selecciona un rol
+                     </option>
                   <option value="administrativo">Administrativo</option>
                   <option value="doctor">Doctor</option>
                 </select>

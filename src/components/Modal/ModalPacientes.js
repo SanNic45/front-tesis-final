@@ -1,6 +1,7 @@
-// Modal.js
 import React, { useState } from "react";
 import "./Modal.css";
+import { createPatient } from "./serviceModalPacientes";
+import Swal from "sweetalert2";
 import { FormControl } from "react-bootstrap";
 
 const ModalPacientes = ({ onClose, isOpen }) => {
@@ -17,24 +18,74 @@ const ModalPacientes = ({ onClose, isOpen }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    if ((name === "cedula" || name === "telefono") && !/^\d{0,10}$/.test(value)) {
+      return;
+    }
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
-    setFormData({
-      nombre: "",
-      apellido: "",
-      cedula: "",
-      correo: "",
-      telefono: "",
-      fechaNacimiento: "",
-      genero: "",
-      direccion: "",
-    });
-    onClose();
+  
+    if (Object.values(formData).some((field) => !field)) {
+      Swal.fire({
+        title: "Campos Obligatorios",
+        text: "Todos los campos son obligatorios. Por favor, complete todos los campos.",
+        icon: "warning",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: 'btn btn-success btn-sw-alert',
+        },
+      });
+      return;
+    }
+  
+    // Additional check for null date
+    if (!formData.fechaNacimiento) {
+      Swal.fire({
+        title: "Fecha de Nacimiento Obligatoria",
+        text: "La fecha de nacimiento es obligatoria. Por favor, ingrese una fecha válida.",
+        icon: "warning",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: 'btn btn-success btn-sw-alert',
+        },
+      });
+      return;
+    }
+  
+    try {
+      const patientData = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        cedula: formData.cedula,
+        correo: formData.correo,
+        telefono: formData.telefono,
+        fecha_nacimiento: formData.fechaNacimiento,  // Update property name here
+        genero: formData.genero,
+        direccion: formData.direccion,
+      };
+      await createPatient(patientData);
+      Swal.fire({
+        title: "Paciente creado!",
+        text: "El paciente se creó exitosamente.",
+        icon: "success",
+        confirmButtonText: "Ok",
+      }).then(() => {
+        onClose();
+        // Optionally, you may refresh the page or update the patient list
+      });
+    } catch (error) {
+      console.error("Error al crear paciente:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Hubo un error al crear el paciente.",
+        icon: "error",
+        confirmButtonText: "Ok",
+      });
+    }
   };
+  
 
   const handleCancel = () => {
     setFormData({
@@ -160,9 +211,12 @@ const ModalPacientes = ({ onClose, isOpen }) => {
                     value={formData.genero}
                     onChange={handleInputChange}
                   >
-                    <option value="administrador">Masculino</option>
-                    <option value="doctor">Femenino</option>
-                    <option value="doctor">Otro</option>
+                    <option value="" disabled hidden>
+                       Selecciona un género
+                     </option>
+                    <option value="masculino">Masculino</option>
+                    <option value="femenino">Femenino</option>
+                    <option value="otro">Otro</option>
                   </FormControl>
                 </div>
               </div>
